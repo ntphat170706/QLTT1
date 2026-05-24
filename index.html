@@ -7,6 +7,11 @@
   
   <!-- CSS Design System -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Leaflet CSS for GIS Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -374,14 +379,7 @@
               </div>
               <div class="card-body">
                 <div id="gis-map" class="gis-map-widget">
-                  <div class="gis-grid-overlay"></div>
-                  <!-- Substations are generated dynamically -->
-                  <div class="gis-map-legend">
-                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#28A745;"></span> An toàn (&gt;85%)</div>
-                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#FFC107;"></span> Cảnh báo (50%-85%)</div>
-                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#FF3B30;"></span> Nguy hiểm (&lt;50%)</div>
-                  </div>
-                  <div id="gis-tooltip" class="gis-tooltip"></div>
+                  <!-- Leaflet Map renders here dynamically -->
                 </div>
               </div>
             </div>
