@@ -6,7 +6,7 @@
   <title>Hệ thống Quản lý Tài sản & Bảo trì CBM - EVN</title>
   
   <!-- CSS Design System -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 
   <!-- Leaflet CSS for GIS Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
@@ -213,10 +213,6 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           <span>Báo cáo & Thống kê</span>
         </li>
-        <li id="menu-help" class="sidebar-item" onclick="switchView('help')">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>Trung tâm Trợ giúp</span>
-        </li>
       </ul>
 
       <div class="sidebar-footer">
@@ -379,7 +375,14 @@
               </div>
               <div class="card-body">
                 <div id="gis-map" class="gis-map-widget">
-                  <!-- Leaflet Map renders here dynamically -->
+                  <div class="gis-grid-overlay"></div>
+                  <!-- Substations are generated dynamically -->
+                  <div class="gis-map-legend">
+                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#28A745;"></span> An toàn (&gt;85%)</div>
+                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#FFC107;"></span> Cảnh báo (50%-85%)</div>
+                    <div class="gis-legend-item"><span class="gis-legend-dot" style="background-color:#FF3B30;"></span> Nguy hiểm (&lt;50%)</div>
+                  </div>
+                  <div id="gis-tooltip" class="gis-tooltip"></div>
                 </div>
               </div>
             </div>
@@ -885,99 +888,7 @@
           </div>
         </section>
 
-        <!-- SECTION 6: TRUNG TÂM TRỢ GIÚP (HELP CENTER) -->
-        <section id="view-help" class="content-pane">
-          <div class="view-header">
-            <div class="view-title">
-              <h2>Trung Tâm Trợ Giúp & Hướng Dẫn Vận Hành</h2>
-              <p>Hướng dẫn kỹ thuật vận hành hệ thống EAM-CBM và vòng đời tài sản điện lực.</p>
-            </div>
-          </div>
 
-          <div class="help-section">
-            
-            <!-- Accordion FAQ component -->
-            <div class="help-doc-card">
-              <h3>Hướng dẫn vận hành hệ thống EAM-CBM</h3>
-              <p>Hệ thống Enterprise Asset Management (EAM) kết hợp Condition Based Maintenance (CBM) cho phép EVN giám sát liên tục sức khỏe thiết bị truyền tải điện và ra quyết định bảo dưỡng trước khi sự cố xảy ra.</p>
-              
-              <div class="help-flow-diagram">
-                <div class="help-flow-step">
-                  <div class="flow-step-icon">1</div>
-                  <div class="flow-step-text">Thiết lập hồ sơ thiết bị</div>
-                </div>
-                <div class="flow-step-arrow">→</div>
-                <div class="help-flow-step">
-                  <div class="flow-step-icon">2</div>
-                  <div class="flow-step-text">Giám sát cảm biến IoT</div>
-                </div>
-                <div class="flow-step-arrow">→</div>
-                <div class="help-flow-step">
-                  <div class="flow-step-icon">3</div>
-                  <div class="flow-step-text">Dự báo nguy cơ sự cố</div>
-                </div>
-                <div class="flow-step-arrow">→</div>
-                <div class="help-flow-step">
-                  <div class="flow-step-icon">4</div>
-                  <div class="flow-step-text">Tạo lệnh và bảo dưỡng</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Frequently Asked Questions Accordion -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Câu Hỏi Thường Gặp (FAQs) - Vòng đời tài sản</div>
-              </div>
-              <div class="card-body">
-                <div class="accordion" id="faq-accordion">
-                  
-                  <div class="accordion-item">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>1. Chỉ số sức khỏe thiết bị (Health Score) được tính như thế nào?</span>
-                      <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <div class="accordion-content">
-                      Chỉ số sức khỏe được đánh giá từ 0% đến 100%, dựa trên các giá trị đo cảm biến nhiệt độ cuộn dây và biên độ độ rung cơ học, so sánh với các tiêu chuẩn kỹ thuật CBM của EVN. Điểm giảm dần khi thiết bị vận hành liên tục quá ngưỡng cảnh báo. Khi sửa chữa và đóng phiếu bảo trì thành công thông qua thủ tục `sp_DongPhieuBaoTri`, điểm sức khỏe sẽ tự động khôi phục về 100%.
-                    </div>
-                  </div>
-
-                  <div class="accordion-item">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>2. Làm thế nào để thanh lý thiết bị hư hỏng nặng mà không làm mất dữ liệu?</span>
-                      <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <div class="accordion-content">
-                      Hệ thống EVN ngăn chặn việc xóa cứng thiết bị để phục vụ công tác đối soát dữ liệu vận hành. Bạn chỉ được thực hiện hành động "Thanh lý" (Soft Delete) thông qua Stored Procedure `sp_LuuTru_TaiSanHong`. Trạng thái thiết bị sẽ đổi thành 'Thanh lý', đồng thời đóng toàn bộ phiếu đang treo của thiết bị này.
-                    </div>
-                  </div>
-
-                  <div class="accordion-item">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>3. Các quy định về giới hạn cảnh báo CBM trong hệ thống?</span>
-                      <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <div class="accordion-content">
-                      Mỗi dòng thiết bị có giới hạn quy chuẩn trong bảng `TIEU_CHUAN_CBM`. Riêng Máy biến áp lực (MBA) sẽ cảnh báo màu vàng khi Nhiệt độ &gt; 75°C hoặc Độ rung &gt; 4 mm/s, và báo động màu đỏ nguy hại khi Nhiệt độ &gt; 85°C hoặc Độ rung &gt; 5 mm/s. Các chỉ số này sẽ tự động kích hoạt còi/đèn nhấp nháy đỏ trên thanh tác vụ.
-                    </div>
-                  </div>
-
-                  <div class="accordion-item">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>4. Tại sao hệ thống chặn không cho tôi mở thêm Lệnh Công Tác?</span>
-                      <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <div class="accordion-content">
-                      Nhằm tránh sự chồng chéo và lãng phí vật tư, Trigger `trg_Limit_PhieuMo` quy định mỗi thiết bị tại một thời điểm không được phép tồn tại quá 3 phiếu bảo trì chưa đóng (ở trạng thái 'Chờ duyệt' hoặc 'Đang xử lý'). Vui lòng xử lý dứt điểm các phiếu đang mở trước khi lập phiếu mới.
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            
-          </div>
-        </section>
 
       </div>
     </main>
@@ -1049,12 +960,162 @@
     </div>
   </div>
 
+  <!-- FLOATING HELP CIRCLE NODE -->
+  <div class="help-floating-btn" onclick="toggleHelpDrawer(event)" title="Trung tâm trợ giúp HMI & IT Support">
+    <svg viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- MODULE 8: HELP CENTER DRAWER (Floating Help Overlay)      -->
+  <!-- ========================================================== -->
+  <div id="help-drawer-backdrop" class="help-drawer-backdrop" onclick="closeHelpDrawer()"></div>
+  <div id="help-drawer" class="help-drawer">
+    <div class="help-drawer-header">
+      <div class="help-drawer-title">Trung tâm Hỗ trợ & Tài liệu Vận hành</div>
+      <svg class="help-drawer-close" fill="none" stroke="currentColor" viewBox="0 0 24 24" onclick="closeHelpDrawer()">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </div>
+    
+    <div class="help-drawer-body">
+      <!-- Hero Banner & Search -->
+      <div class="help-hero-banner" style="padding: 24px 20px; margin-bottom: 15px;">
+        <h3 style="font-size: 18px; margin-bottom: 8px; font-family:'Outfit', sans-serif;">Trung tâm Hỗ trợ EAM-CBM</h3>
+        <p style="font-size: 12.5px; margin-bottom: 15px; color: var(--text-muted);">Tra cứu nhanh quy chuẩn CBM, tài liệu bóc tách XML và hướng dẫn xử lý lỗi nghiệp vụ SQL</p>
+        <div class="help-search-wrapper">
+          <svg class="help-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;left:12px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" id="help-search-input" class="help-search-input-large" style="padding: 10px 12px 10px 38px !important; font-size: 13px;" placeholder="Nhập câu hỏi hoặc mã lỗi..." oninput="filterHelpFAQs(this.value)">
+        </div>
+      </div>
+
+      <!-- Knowledge Base Categories -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="kb-card" style="padding: 16px;">
+          <div class="kb-card-icon" style="width: 32px; height: 32px; background-color: var(--evn-primary-light); color: var(--evn-primary); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h4 style="font-size: 14px; font-weight:700; color: var(--evn-primary-dark);">Nghiệp vụ CBM & IoT</h4>
+          <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">Đọc chỉ số sức khỏe tự động, tiêu chuẩn nhiệt độ dầu MBA, và điện áp pha cảnh báo.</p>
+        </div>
+
+        <div class="kb-card" style="padding: 16px;">
+          <div class="kb-card-icon" style="width: 32px; height: 32px; background-color: var(--evn-primary-light); color: var(--evn-primary); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2"></path>
+            </svg>
+          </div>
+          <h4 style="font-size: 14px; font-weight:700; color: var(--evn-primary-dark);">Quản lý Lệnh công tác</h4>
+          <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">Quy trình khởi tạo phiếu yêu cầu bảo trì, cơ chế xét duyệt trạng thái, và đóng phiếu sửa chữa.</p>
+        </div>
+
+        <div class="kb-card" style="padding: 16px;">
+          <div class="kb-card-icon" style="width: 32px; height: 32px; background-color: var(--evn-primary-light); color: var(--evn-primary); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 4px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <h4 style="font-size: 14px; font-weight:700; color: var(--evn-primary-dark);">Quản trị Hệ thống</h4>
+          <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">Cấp quyền vai trò HMI (RBAC), theo dõi luồng Audit Log từ trigger, và cơ chế kết xuất danh mục tài sản CSV.</p>
+        </div>
+      </div>
+
+      <!-- FAQ & Troubleshooting Accordion -->
+      <div class="card" style="margin-top:10px;">
+        <div class="card-header" style="padding: 12px 16px;">
+          <div class="card-title" style="font-size: 13.5px; color: var(--evn-primary-dark); font-weight:700;">Câu Hỏi Thường Gặp (FAQs) - Vận hành & CSDL</div>
+        </div>
+        <div class="card-body" style="padding: 12px 16px;">
+          <div class="accordion" id="faq-accordion">
+            
+            <div class="accordion-item help-faq-item">
+              <div class="accordion-header" style="padding: 10px 12px; font-size:12.5px; font-weight:600; color: var(--evn-primary-dark);" onclick="toggleAccordion(this)">
+                <span class="faq-question">Tại sao tôi không thể xóa Máy biến áp? <span class="db-badge" style="background:#FEE2E2;color:#EF4444;border-color:#FCA5A5;">[🛡️ trg_Prevent_Delete]</span></span>
+                <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="accordion-content" style="font-size:12px; color: var(--text-muted); line-height: 1.5;">
+                Hệ thống chặn việc xóa tài sản đang 'Đang vận hành' hoặc có lịch sử bảo trì để đảm bảo toàn vẹn dữ liệu. Vui lòng dùng chức năng 'Thanh lý'.
+              </div>
+            </div>
+
+            <div class="accordion-item help-faq-item">
+              <div class="accordion-header" style="padding: 10px 12px; font-size:12.5px; font-weight:600; color: var(--evn-primary-dark);" onclick="toggleAccordion(this)">
+                <span class="faq-question">Tại sao không thể tạo thêm Lệnh công tác? <span class="db-badge" style="background:#FEF3C7;color:#D97706;border-color:#FCD34D;">[🛡️ trg_Limit_PhieuMo]</span></span>
+                <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="accordion-content" style="font-size:12px; color: var(--text-muted); line-height: 1.5;">
+                Thiết bị này đã đạt giới hạn phiếu bảo trì mở đồng thời. Vui lòng xử lý các phiếu cũ trước.
+              </div>
+            </div>
+
+            <div class="accordion-item help-faq-item">
+              <div class="accordion-header" style="padding: 10px 12px; font-size:12.5px; font-weight:600; color: var(--evn-primary-dark);" onclick="toggleAccordion(this)">
+                <span class="faq-question">Làm sao để xem thông số kỹ thuật chi tiết? <span class="db-badge" style="background:#E0F2FE;color:#0284C7;border-color:#BAE6FD;">[XML Parsed Data]</span></span>
+                <svg class="accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+              <div class="accordion-content" style="font-size:12px; color: var(--text-muted); line-height: 1.5;">
+                Bấm vào icon mở rộng ở bảng Tài sản, hệ thống sẽ tự động bóc tách cấu trúc phức tạp ra bảng.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- IT HELPDESK & CONTACT SUPPORT -->
+      <div class="it-helpdesk-container" style="grid-template-columns:1fr; gap:20px; padding:20px; margin-top:10px;">
+        <div class="it-helpdesk-left">
+          <h3 style="font-size: 16px; color: var(--evn-primary-dark); font-weight:700;">Hỗ trợ Kỹ thuật & Báo cáo sự cố</h3>
+          <p style="font-size:12.5px; color: var(--text-muted); line-height: 1.5;">Đội ngũ kỹ thuật SCADA/HMI túc trực 24/7. Vui lòng liên hệ Hotline hoặc gửi yêu cầu xử lý lỗi dữ liệu SCADA ngay bên dưới.</p>
+          
+          <div class="contact-item" style="font-size:12.5px; display:flex; align-items:center; gap:10px;">
+            <div class="contact-icon" style="width:30px;height:30px; background-color: #E0EFFF; color: var(--evn-primary); border-radius:50%; display:flex; justify-content:center; align-items:center;"><svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></div>
+            <div class="contact-details">
+              <span class="contact-value" style="font-size:13px; font-weight:600; color: var(--text-main);">1900-EVN-THUDUC (Ext: 102)</span>
+            </div>
+          </div>
+
+          <div class="contact-item" style="font-size:12.5px; display:flex; align-items:center; gap:10px;">
+            <div class="contact-icon" style="width:30px;height:30px; background-color: #E0EFFF; color: var(--evn-primary); border-radius:50%; display:flex; justify-content:center; align-items:center;"><svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+            <div class="contact-details">
+              <span class="contact-value" style="font-size:13px; font-weight:600; color: var(--text-main);">it-support@evnthuduc.vn</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="it-helpdesk-right" style="padding:15px; background: #FFFFFF; border: 1px solid rgba(0, 90, 171, 0.1); border-radius: var(--radius-md);">
+          <h4 style="font-size:13.5px; margin-bottom:10px; color: var(--evn-primary-dark); font-weight:700;">Gửi Ticket Hỗ Trợ Kỹ Thuật</h4>
+          <form id="help-ticket-form" class="evn-form" onsubmit="handleHelpTicketSubmit(event)">
+            <div class="form-group" style="margin-bottom:10px; display:flex; flex-direction:column; gap:4px;">
+              <label class="form-label" style="font-size:11px; margin-bottom:0; color: var(--text-main); font-weight:600;">Mức độ ưu tiên</label>
+              <select id="ticket-priority" class="form-control" style="font-size:12px; padding:6px 10px; width:100%; border: 1px solid #CBD5E1; border-radius: var(--radius-sm);" required>
+                <option value="Bình thường">Bình thường</option>
+                <option value="Khẩn cấp - Mất kết nối DB">Khẩn cấp - Mất kết nối DB</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:12px; display:flex; flex-direction:column; gap:4px;">
+              <label class="form-label" style="font-size:11px; margin-bottom:0; color: var(--text-main); font-weight:600;">Mô tả chi tiết lỗi phát sinh</label>
+              <textarea id="ticket-description" class="form-control" rows="3" style="font-size:12px; padding:6px 10px; resize:none; width:100%; border: 1px solid #CBD5E1; border-radius: var(--radius-sm);" placeholder="Mô tả lỗi..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-small" style="width:100%; justify-content:center;">Gửi Yêu Cầu [🚀 Submit]</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ========================================================== -->
   <!-- DATABASE & BUSINESS SCRIPT BUNDLING                        -->
   <!-- ========================================================== -->
-  <script src="data.js"></script>
-  <script src="auth.js"></script>
-  <script src="charts.js"></script>
-  <script src="app.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

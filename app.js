@@ -641,7 +641,6 @@ function handleNotificationClick(assetId) {
   openAssetDrawer(assetId);
 }
 
-// Clear alerts
 function clearAllNotifications(event) {
   event.stopPropagation();
   activeNotifications = [];
@@ -1685,3 +1684,81 @@ window.showProfileSettings = showProfileSettings;
 window.showSystemSettings = showSystemSettings;
 window.showRolePermissionsManagement = showRolePermissionsManagement;
 window.scrollAuditLogsIntoView = scrollAuditLogsIntoView;
+
+// --- MODULE 9: HELP CENTER & IT TICKET SYSTEM ---
+function filterHelpFAQs(query) {
+  const cleanQuery = query.toLowerCase().trim();
+  const faqItems = document.querySelectorAll(".help-faq-item");
+  
+  faqItems.forEach(item => {
+    const questionText = item.querySelector(".faq-question").textContent.toLowerCase();
+    const contentText = item.querySelector(".accordion-content").textContent.toLowerCase();
+    
+    if (questionText.includes(cleanQuery) || contentText.includes(cleanQuery)) {
+      item.style.display = "block";
+    } else {
+      item.style.display = "none";
+    }
+  });
+}
+
+function handleHelpTicketSubmit(event) {
+  event.preventDefault();
+  
+  const priority = document.getElementById("ticket-priority").value;
+  const description = document.getElementById("ticket-description").value.trim();
+  
+  if (!description) {
+    showToast("Lỗi nhập liệu", "Vui lòng nhập mô tả sự cố kỹ thuật.", "danger");
+    return;
+  }
+  
+  try {
+    const currentUser = Auth.getCurrentUser();
+    const username = currentUser ? currentUser.username : "guest";
+    
+    // Log audit event to DB
+    DB.logAudit(
+      username, 
+      `Ticket hỗ trợ SCADA (${priority}): ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}`, 
+      "IT_Helpdesk"
+    );
+    
+    showToast(
+      "Gửi Ticket thành công", 
+      "Ticket hỗ trợ đã được chuyển tới kỹ sư SCADA trực ban.", 
+      "success"
+    );
+    
+    // Reset form
+    document.getElementById("help-ticket-form").reset();
+  } catch (err) {
+    showToast("Lỗi gửi Ticket", err.message, "danger");
+  }
+}
+
+window.filterHelpFAQs = filterHelpFAQs;
+window.handleHelpTicketSubmit = handleHelpTicketSubmit;
+
+function toggleHelpDrawer(event) {
+  if (event) event.stopPropagation();
+  const drawer = document.getElementById("help-drawer");
+  const backdrop = document.getElementById("help-drawer-backdrop");
+  if (drawer && backdrop) {
+    drawer.classList.toggle("active");
+    backdrop.classList.toggle("active");
+  }
+}
+
+function closeHelpDrawer() {
+  const drawer = document.getElementById("help-drawer");
+  const backdrop = document.getElementById("help-drawer-backdrop");
+  if (drawer && backdrop) {
+    drawer.classList.remove("active");
+    backdrop.classList.remove("active");
+  }
+}
+
+window.toggleHelpDrawer = toggleHelpDrawer;
+window.closeHelpDrawer = closeHelpDrawer;
+
