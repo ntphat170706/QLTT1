@@ -444,82 +444,82 @@ function renderBarCosts() {
   EVNCharts.drawBarChart("bar-costs", costReport);
 }
 
-// Draw interactive GIS maps of TRAM_DIEN nodes
+let gisMapInstance = null;
+
+// Draw interactive GIS maps of TRAM_DIEN nodes using Leaflet
 function renderGISMap() {
   const mapElement = document.getElementById("gis-map");
   if (!mapElement) return;
 
-  // Clean old node points except background grid lines and legend
-  const existingNodes = mapElement.querySelectorAll(".gis-substation-node, .gis-substation-line");
-  existingNodes.forEach(node => node.remove());
-
   const substations = DB.vw_HieuSuat_TramDien;
-  const mapWidth = mapElement.clientWidth || 500;
-  const mapHeight = mapElement.clientHeight || 280;
 
-  // Calculate coordinates min/max bounding to stretch map points
-  const latitudes = substations.map(s => s.latitude);
-  const longitudes = substations.map(s => s.longitude);
-  const minLat = Math.min(...latitudes, 10.7) - 0.5;
-  const maxLat = Math.max(...latitudes, 21.0) + 0.5;
-  const minLng = Math.min(...longitudes, 105.3) - 0.5;
-  const maxLng = Math.max(...longitudes, 108.2) + 0.5;
+  if (gisMapInstance) {
+    // If map already exists, clear existing markers to redraw fresh ones
+    gisMapInstance.eachLayer(layer => {
+      if (layer instanceof L.CircleMarker) {
+        gisMapInstance.removeLayer(layer);
+      }
+    });
+  } else {
+    // Initialize Leaflet Map centered in Thu Duc City
+    gisMapInstance = L.map('gis-map', {
+      center: [10.82, 106.77],
+      zoom: 12,
+      zoomControl: false // keep it clean, no default controls
+    });
 
-  const latSpan = maxLat - minLat;
-  const lngSpan = maxLng - minLng;
+    // Add a beautiful clean light-mode dashboard tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(gisMapInstance);
+  }
 
-  // Draw nodes
+  // Draw substations
   substations.forEach(sub => {
-    // Calculate pixel coordinates
-    // Reflect Y coordinate to match screen coordinate system (0,0 is top-left)
-    const x = paddingScale(sub.longitude, minLng, lngSpan, mapWidth * 0.15, mapWidth * 0.85);
-    const y = paddingScale(sub.latitude, minLat, latSpan, mapHeight * 0.85, mapHeight * 0.15); // flipped
-
-    const node = document.createElement("div");
-    node.className = "gis-substation-node gis-node-pulse";
-    node.style.left = `${x}px`;
-    node.style.top = `${y}px`;
-
-    // Health color code
     let color = "#28A745"; // normal
     if (sub.avg_health < 50) color = "#FF3B30"; // dangerous
     else if (sub.avg_health < 85) color = "#FFC107"; // warning
-    node.style.color = color;
-    node.style.backgroundColor = color;
 
-    // Interaction Events
-    node.addEventListener("mouseenter", (e) => {
-      const tooltip = document.getElementById("gis-tooltip");
-      tooltip.style.opacity = "1";
-      tooltip.style.left = `${x + 15}px`;
-      tooltip.style.top = `${y - 45}px`;
-      tooltip.innerHTML = `
-        <div style="font-weight:700; color:#38BDF8; font-size:12px; margin-bottom:4px;">${sub.substation_name}</div>
-        <div style="color:#E2E8F0; font-size:11px;">Phân vùng: ${sub.region}</div>
-        <div style="color:#E2E8F0; font-size:11px;">Thiết bị lắp đặt: <strong>${sub.asset_count} máy</strong></div>
-        <div style="margin-top:5px; font-weight:600; font-size:12px; color:${color};">Sức khỏe trạm: ${sub.avg_health}%</div>
-      `;
+    const marker = L.circleMarker([sub.latitude, sub.longitude], {
+      radius: 9,
+      fillColor: color,
+      color: "#ffffff",
+      weight: 2.5,
+      opacity: 1,
+      fillOpacity: 0.85
+    }).addTo(gisMapInstance);
+
+    const tooltipContent = `
+      <div style="font-family:'Inter', sans-serif; font-size:11px; padding:2px; color:var(--text-main);">
+        <div style="font-weight:700; color:var(--evn-primary-dark); font-size:12px; margin-bottom:4px;">${sub.substation_name}</div>
+        <div style="color:var(--text-muted); font-size:10px;">Phân vùng: ${sub.region}</div>
+        <div style="color:var(--text-muted); font-size:10px;">Thiết bị lắp đặt: <strong>${sub.asset_count} máy</strong></div>
+        <div style="margin-top:5px; font-weight:600; font-size:11px; color:${color};">Sức khỏe trạm: ${sub.avg_health}%</div>
+      </div>
+    `;
+    marker.bindTooltip(tooltipContent, {
+      direction: 'top',
+      opacity: 0.98,
+      className: 'gis-map-leaflet-tooltip'
     });
 
-    node.addEventListener("mouseleave", () => {
-      const tooltip = document.getElementById("gis-tooltip");
-      tooltip.style.opacity = "0";
-    });
-
-    node.addEventListener("click", () => {
-      // Filter the assets grid by this substation and switch views
+    marker.on('click', () => {
       switchView('assets');
       const subFilter = document.getElementById("asset-filter-status");
-      subFilter.value = ""; // clear status filter
+      if (subFilter) subFilter.value = "";
       const typeFilter = document.getElementById("asset-filter-type");
-      typeFilter.value = ""; // clear type filter
+      if (typeFilter) typeFilter.value = "";
       
-      // Let's filter the actual view grid manually
       renderAssetGridFilteredBySubstation(sub.substation_id);
     });
-
-    mapElement.appendChild(node);
   });
+
+  // Automatically zoom and fit all markers on screen
+  if (substations.length > 0) {
+    const markerGroup = L.featureGroup(substations.map(sub => L.marker([sub.latitude, sub.longitude])));
+    gisMapInstance.fitBounds(markerGroup.getBounds().pad(0.15));
+  }
 }
 
 function paddingScale(val, min, span, minPx, maxPx) {
@@ -641,6 +641,7 @@ function handleNotificationClick(assetId) {
   openAssetDrawer(assetId);
 }
 
+// Clear alerts
 function clearAllNotifications(event) {
   event.stopPropagation();
   activeNotifications = [];
